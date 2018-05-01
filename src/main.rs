@@ -1,4 +1,4 @@
-#![feature(plugin, custom_derive, const_fn, decl_macro)]
+#![feature(plugin, custom_derive, const_fn, decl_macro, attr_literals, custom_attribute)]
 #![plugin(rocket_codegen)]
 
 #[macro_use]
