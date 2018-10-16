@@ -1,14 +1,13 @@
-#![feature(plugin, custom_derive, const_fn, decl_macro, attr_literals, custom_attribute)]
-#![plugin(rocket_codegen)]
+#![feature(plugin, custom_derive, const_fn, decl_macro, custom_attribute, proc_macro_hygiene)]
+#![allow(proc_macro_derive_resolution_fallback, unused_attributes)]
 
 #[macro_use]
 extern crate diesel;
-//no longer needed
-//#[macro_use]
-//extern crate diesel_codegen;
+
 extern crate dotenv;
 extern crate r2d2;
 extern crate r2d2_diesel;
+#[macro_use]
 extern crate rocket;
 extern crate rocket_contrib;
 #[macro_use]
@@ -18,12 +17,12 @@ extern crate serde_json;
 
 use dotenv::dotenv;
 use std::env;
-use diesel::prelude::*;
-use diesel::pg::PgConnection;
+use routes::*;
 
-mod schema;
-mod models;
 mod db;
+mod models;
+mod routes;
+mod schema;
 mod static_files;
 
 fn rocket() -> rocket::Rocket {
@@ -34,9 +33,14 @@ fn rocket() -> rocket::Rocket {
     let pool = db::init_pool(database_url);
     rocket::ignite()
         .manage(pool)
+        .mount(
+            "/api/v1/",
+            routes![index, new, show, delete, author, update],
+        )
         .mount("/", routes![static_files::all, static_files::index])
 }
 
 fn main() {
     rocket().launch();
 }
+
